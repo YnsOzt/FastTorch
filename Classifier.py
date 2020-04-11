@@ -77,6 +77,12 @@ class Classifier:
                 print("Training stopped due to early stopping patience !")
                 break
 
+    def test(self):
+        print("-"*80)
+        print("Starting testing:")
+        _, test_accuracy = self._validate(self.test_dataloader, self.TEST)
+        print("Accuracy of {} for the test test".format(test_accuracy))
+
     def _train_epoch(self):
         self.model.train()
         current_loss = 0
@@ -129,12 +135,6 @@ class Classifier:
             current_accuracy = round((100 * correct / total), 4)
 
         return current_loss, current_accuracy
-
-    def test(self):
-        print("-"*80)
-        print("Starting testing:")
-        _, test_accuracy = self._validate(self.test_dataloader, self.TEST)
-        print("Accuracy of {} for the test test".format(test_accuracy))
 
     def plot_stats(self):
         pass

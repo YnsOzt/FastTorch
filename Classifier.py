@@ -3,11 +3,12 @@ import torch
 
 
 class Classifier:
-    def __init__(self, model, training_opts, train_dataloader, test_dataloader, val_dataloader=None, device='cpu'):
+    def __init__(self, model, training_opts, train_dataloader, test_dataloader, val_dataloader=None, device='cpu', model_path="best_model.pth"):
         self.model = model
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
         self.val_dataloader = val_dataloader
+        self.model_path = model_path
 
         # Test set will be the validation set if any validation set isn't specified
         if self.val_dataloader is None:
@@ -67,6 +68,7 @@ class Classifier:
             if validation_accuracy > best_accuracy:
                 best_accuracy = validation_accuracy
                 current_patience = self.early_stopping_patience
+                self._save_model()
             else:
                 current_patience -= 1
 
@@ -135,6 +137,12 @@ class Classifier:
             current_accuracy = round((100 * correct / total), 4)
 
         return current_loss, current_accuracy
+
+    def _save_model(self):
+        if ".pth" not in self.model_path:
+            self.model_path += ".pth"
+        print("Saving model")
+        torch.save(self.model.state_dict(), self.model_path)
 
     def plot_stats(self):
         pass

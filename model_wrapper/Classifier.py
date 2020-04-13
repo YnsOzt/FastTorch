@@ -7,9 +7,25 @@ from sklearn.metrics import confusion_matrix
 import itertools
 import numpy as np
 
+
 class Classifier:
     def __init__(self, model, training_opts, train_dataloader, test_dataloader, val_dataloader=None, device='cpu',
                  model_path="best_model.pth"):
+        """
+        :param model: the model to train
+        :param training_opts: the model options, this parameters should be a dict containing those informations:
+        {
+            epochs : int (number of epochs) [OPT],
+            optimizer: optimizer,
+            criterion: criterion,
+            early_stopping_patience: int (patience of early stopping) [OPT]
+        }
+        :param train_dataloader: The dataloader of the training set
+        :param test_dataloader: The dataloader of the test set
+        :param val_dataloader: The dataloader of validation set if not specified, use the test set as the val set [OPT]
+        :param device: device to run your model on [ cpu | cuda ] [OPT]
+        :param model_path: path where the best_model will be saved on [OPT]
+        """
         self.model = model
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
@@ -55,6 +71,10 @@ class Classifier:
         self.TEST = "test"
 
     def train(self):
+        """
+        Training loop
+        :return:
+        """
         model.to(self.device)
         print(self.model)
         current_patience = self.early_stopping_patience
@@ -92,12 +112,20 @@ class Classifier:
                 break
 
     def test(self):
+        """
+        Test loop
+        :return:
+        """
         print("-" * 80)
         print("Starting testing:")
         _, test_accuracy = self._validate(self.test_dataloader, self.TEST)
         print("Accuracy of {} for the test test".format(test_accuracy))
 
     def _train_epoch(self):
+        """
+        Train an entier epoch
+        :return: the loss of this epoch
+        """
         self.model.train()
         current_loss = 0
         for X, y in tqdm.tqdm(self.train_dataloader):
@@ -115,6 +143,12 @@ class Classifier:
         return round(current_loss / len(self.train_dataloader), 4)
 
     def _validate(self, dataset, mode):
+        """
+        Test or validation loop
+        :param dataset: the dataset to run the test or validation on
+        :param mode: which mode we are on [ test / validation ]
+        :return: the loss and the accuracy of the validation or test
+        """
         current_loss = 0
         current_accuracy = 0
         correct = 0
@@ -151,26 +185,43 @@ class Classifier:
         return current_loss, current_accuracy
 
     def _save_model(self):
+        """
+        save the model
+        :return:
+        """
         if ".pth" not in self.model_path:
             self.model_path += ".pth"
         print("Saving model")
         torch.save(self.model.state_dict(), self.model_path)
 
-    def plot_stats(self, figsize=(15, 7)):
-        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=figsize)
-        axes[0].plot(self.train_losses, 'r', label='Training loss')
-        axes[0].plot(self.val_losses, 'b', label='Validation loss')
-        axes[1].scatter([i for i in range(len(self.val_accuracies))], self.val_accuracies, c='green',
-                        label='Validation accuracy')
-        axes[1].plot([i for i in range(len(self.val_accuracies))], self.val_accuracies)
-        axes[1].get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-        axes[0].get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-        plt.setp(axes[::], xlabel='epoch')
-        plt.setp(axes[0], ylabel='Loss')
-        plt.setp(axes[1], ylabel='Accuracy')
-        plt.show()
+    def plot_training_stats(self, figsize=(15, 7)):
+        """
+
+        :param figsize: figsize (width, height) [OPT]
+        :return:
+        """
+        if len(self.train_losses) > 0:
+            fig, axes = plt.subplots(nrows=1, ncols=2, figsize=figsize)
+            axes[0].plot(self.train_losses, 'r', label='Training loss')
+            axes[0].plot(self.val_losses, 'b', label='Validation loss')
+            axes[1].scatter([i for i in range(len(self.val_accuracies))], self.val_accuracies, c='green',
+                            label='Validation accuracy')
+            axes[1].plot([i for i in range(len(self.val_accuracies))], self.val_accuracies)
+            axes[1].get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+            axes[0].get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+            plt.setp(axes[::], xlabel='epoch')
+            plt.setp(axes[0], ylabel='Loss')
+            plt.setp(axes[1], ylabel='Accuracy')
+            plt.show()
+        else:
+            raise Exception("You should train your model first")
 
     def plot_random_predictions(self, std_mean=None):
+        """
+        show predictions on random data
+        :param std_mean: (std_dev, mean_var), to show the images withouth the modification applied on [OPT]
+        :return:
+        """
         self.model.eval()
         with torch.no_grad():
             X, y = next(iter(self.test_dataloader))
@@ -204,24 +255,31 @@ class Classifier:
 
     # this code is taken from https://deeplizard.com/learn/video/0LhiS6yu2qQ
     def plot_confusion_matrix(self):
-        cm = confusion_matrix(self.gts, self.predictions)
-        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title("Confusion matrix")
-        plt.colorbar()
-        tick_marks = np.arange(len(self.classes))
-        plt.xticks(tick_marks, self.classes, rotation=45)
-        plt.yticks(tick_marks, self.classes)
+        """
+        Plot the confusion matrix
+        :return:
+        """
+        if len(self.gts) > 0:
+            cm = confusion_matrix(self.gts, self.predictions)
+            plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+            plt.title("Confusion matrix")
+            plt.colorbar()
+            tick_marks = np.arange(len(self.classes))
+            plt.xticks(tick_marks, self.classes, rotation=45)
+            plt.yticks(tick_marks, self.classes)
 
-        fmt = 'd'
-        thresh = cm.max() / 2.
-        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-            plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center",
-                     color="white" if cm[i, j] > thresh else "black")
+            fmt = 'd'
+            thresh = cm.max() / 2.
+            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+                plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
 
-        plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-        plt.show()
+            plt.tight_layout()
+            plt.ylabel('True label')
+            plt.xlabel('Predicted label')
+            plt.show()
+        else:
+            raise Exception("You should train your model first!")
 
 
 if __name__ == '__main__':
@@ -272,6 +330,6 @@ if __name__ == '__main__':
 
     clf.train()
     clf.test()
-    clf.plot_stats()
+    clf.plot_training_stats()
     clf.plot_random_predictions()
     clf.plot_confusion_matrix()

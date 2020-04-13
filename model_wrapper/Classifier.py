@@ -3,7 +3,9 @@ import torch
 import matplotlib.pyplot as plt
 import matplotlib
 from mpl_toolkits.axes_grid1 import ImageGrid
-
+from sklearn.metrics import confusion_matrix
+import itertools
+import numpy as np
 
 class Classifier:
     def __init__(self, model, training_opts, train_dataloader, test_dataloader, val_dataloader=None, device='cpu',
@@ -200,6 +202,27 @@ class Classifier:
             plt.ioff()
             plt.show()
 
+    # this code is taken from https://deeplizard.com/learn/video/0LhiS6yu2qQ
+    def plot_confusion_matrix(self):
+        cm = confusion_matrix(self.gts, self.predictions)
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title("Confusion matrix")
+        plt.colorbar()
+        tick_marks = np.arange(len(self.classes))
+        plt.xticks(tick_marks, self.classes, rotation=45)
+        plt.yticks(tick_marks, self.classes)
+
+        fmt = 'd'
+        thresh = cm.max() / 2.
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black")
+
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        plt.show()
+
 
 if __name__ == '__main__':
     import torch.nn as nn
@@ -239,14 +262,16 @@ if __name__ == '__main__':
 
     model = Model()
     training_opts = {
-        "epochs": 1,
+        "epochs": 5,
         "criterion": nn.CrossEntropyLoss(),
         "optimizer": optim.SGD(model.parameters(), lr=0.01),
         "early_stopping_patience": 2
     }
+
     clf = Classifier(model, training_opts, train_loader, test_loader, val_loader, device="cuda")
 
     clf.train()
     clf.test()
     clf.plot_stats()
     clf.plot_random_predictions()
+    clf.plot_confusion_matrix()

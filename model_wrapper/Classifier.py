@@ -1,14 +1,24 @@
 import tqdm
 import torch
+import matplotlib.pyplot as plt
+import matplotlib
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 
 class Classifier:
-    def __init__(self, model, training_opts, train_dataloader, test_dataloader, val_dataloader=None, device='cpu', model_path="best_model.pth"):
+    def __init__(self, model, training_opts, train_dataloader, test_dataloader, val_dataloader=None, device='cpu',
+                 model_path="best_model.pth"):
         self.model = model
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
         self.val_dataloader = val_dataloader
         self.model_path = model_path
+
+        # if the dataset is an instance of subset, we'll reach it by accessing the dataset of subset
+        if isinstance(self.train_dataloader.dataset, torch.utils.data.dataset.Subset):
+            self.classes = self.train_dataloader.dataset.dataset.classes
+        else:
+            self.classes = self.train_dataloader.dataset.classes
 
         # Test set will be the validation set if any validation set isn't specified
         if self.val_dataloader is None:
@@ -80,7 +90,7 @@ class Classifier:
                 break
 
     def test(self):
-        print("-"*80)
+        print("-" * 80)
         print("Starting testing:")
         _, test_accuracy = self._validate(self.test_dataloader, self.TEST)
         print("Accuracy of {} for the test test".format(test_accuracy))
@@ -144,8 +154,51 @@ class Classifier:
         print("Saving model")
         torch.save(self.model.state_dict(), self.model_path)
 
-    def plot_stats(self):
-        pass
+    def plot_stats(self, figsize=(15, 7)):
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=figsize)
+        axes[0].plot(self.train_losses, 'r', label='Training loss')
+        axes[0].plot(self.val_losses, 'b', label='Validation loss')
+        axes[1].scatter([i for i in range(len(self.val_accuracies))], self.val_accuracies, c='green',
+                        label='Validation accuracy')
+        axes[1].plot([i for i in range(len(self.val_accuracies))], self.val_accuracies)
+        axes[1].get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+        axes[0].get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+        plt.setp(axes[::], xlabel='epoch')
+        plt.setp(axes[0], ylabel='Loss')
+        plt.setp(axes[1], ylabel='Accuracy')
+        plt.show()
+
+    def plot_random_predictions(self, std_mean=None):
+        self.model.eval()
+        with torch.no_grad():
+            X, y = next(iter(self.test_dataloader))
+            X = X.to(self.device)
+            y = y.to(self.device)
+            # take juste the 16 first
+            X = X[0:16]
+            y = y[0:16]
+            preds_indices = torch.argmax(self.model(X), -1)  # transforms model predictions into indices
+            #  Show the data then stops
+            fig = plt.figure(figsize=(16, 16))
+            grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                             nrows_ncols=(4, 4),  # creates 2x2 grid of axes
+                             axes_pad=0.35,  # pad between axes in inch.
+                             )
+
+            for ax, im, lb, pred in zip(grid, X, y, preds_indices):
+                # Iterating over the grid returns the Axes.
+                inp = im.permute(1, 2, 0).detach().cpu().numpy()
+                if std_mean is not None:
+                    inp = np.array(std_mean[0] * inp + np.array(std_mean[1]))
+                # if the image is in grayscale
+                if inp.shape[2] == 1:
+                    inp = inp.squeeze()
+                ax.imshow(inp)
+                ax.set_title("{} (GT:{})".format(self.classes[pred], (self.classes[lb])))
+
+            plt.axis("off")
+            plt.ioff()
+            plt.show()
 
 
 if __name__ == '__main__':
@@ -189,9 +242,11 @@ if __name__ == '__main__':
         "epochs": 1,
         "criterion": nn.CrossEntropyLoss(),
         "optimizer": optim.SGD(model.parameters(), lr=0.01),
-        "early_stopping_patience": 5
+        "early_stopping_patience": 2
     }
     clf = Classifier(model, training_opts, train_loader, test_loader, val_loader, device="cuda")
 
     clf.train()
     clf.test()
+    clf.plot_stats()
+    clf.plot_random_predictions()

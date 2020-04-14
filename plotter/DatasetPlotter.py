@@ -12,13 +12,14 @@ def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader
     :param figsize: size of figure (width, height) [OPT, DEFAULT = (20, 7)]
     :return:
     """
+
     def compute_distribution(dataset):
         distribution = {}
         for (x, y) in tqdm.tqdm(dataset):
             for lb in y:
                 current_y = dataset.dataset.dataset.classes[lb] if isinstance(dataset.dataset,
                                                                               torch.utils.data.dataset.Subset) else \
-                dataset.dataset.classes[lb]
+                    dataset.dataset.classes[lb]
                 if current_y in distribution:
                     distribution[current_y] += 1
                 else:
@@ -42,14 +43,14 @@ def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader
     axes[0].tick_params(axis='x', labelrotation=45)
 
     axes[1].set_title('Test set')
-    for item in test_distribution.keys():
+    for item in train_distribution.keys():
         axes[1].bar(item, test_distribution[item])
 
     axes[1].tick_params(axis='x', labelrotation=45)
 
     if val_dataloader is not None:
         axes[2].set_title('Validation set')
-        for item in val_distribution.keys():
+        for item in train_distribution.keys():
             axes[2].bar(item, val_distribution[item])
 
     axes[2].tick_params(axis='x', labelrotation=45)
@@ -65,8 +66,9 @@ def plot_images(data_loader, figsize=(15, 15), std_mean=None):
     :param std_mean: (std_dev, mean_var), to show the images withouth the modification applied on [OPT]
     :return:
     """
-    classes = data_loader.dataset.dataset.classes if isinstance(data_loader.dataset, torch.utils.data.dataset.Subset) else \
-                data_loader.dataset.classes
+    classes = data_loader.dataset.dataset.classes if isinstance(data_loader.dataset,
+                                                                torch.utils.data.dataset.Subset) else \
+        data_loader.dataset.classes
     X, y = next(iter(data_loader))
 
     #  Show the data then stops

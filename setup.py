@@ -6,7 +6,7 @@ with open("./README.md", "r") as fh:
 setup(
     name='fast_torch',
     packages=['fast_torch'],
-    version='0.2.2',
+    version='0.2.3',
     license='MIT',
     description='Library that implements boiler plate code in PyTorch for training, testing and plotting your model',
     long_description=long_description,

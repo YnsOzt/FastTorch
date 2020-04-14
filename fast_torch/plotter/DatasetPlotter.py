@@ -1,6 +1,8 @@
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
+import torch
+import tqdm
 
 
 def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader=None, figsize=(20, 7)):
@@ -98,7 +100,6 @@ if __name__ == '__main__':
     import torchvision
     import torchvision.datasets as datasets
     from torch.utils.data import DataLoader
-    import tqdm
 
     transforms = torchvision.transforms.Compose(
         [torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.1307,), (0.3081,))])

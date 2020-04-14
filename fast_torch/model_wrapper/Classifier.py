@@ -75,7 +75,7 @@ class Classifier:
         Training loop
         :return:
         """
-        model.to(self.device)
+        self.model.to(self.device)
         print(self.model)
         current_patience = self.early_stopping_patience
         best_accuracy = -1
@@ -153,7 +153,7 @@ class Classifier:
         current_accuracy = 0
         correct = 0
         total = 0
-        model.eval()
+        self.model.eval()
         with torch.no_grad():
             for X, y in tqdm.tqdm(dataset):
                 X = X.to(self.device)

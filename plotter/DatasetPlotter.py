@@ -39,20 +39,20 @@ def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader
     for item in train_distribution.keys():
         axes[0].bar(item, train_distribution[item])
 
-    axes[0].tick_params(labelrotation=45)
+    axes[0].tick_params(axis='x', labelrotation=45)
 
     axes[1].set_title('Test set')
     for item in test_distribution.keys():
         axes[1].bar(item, test_distribution[item])
 
-    axes[1].tick_params(labelrotation=45)
+    axes[1].tick_params(axis='x', labelrotation=45)
 
     if val_dataloader is not None:
         axes[2].set_title('Validation set')
         for item in val_distribution.keys():
             axes[2].bar(item, val_distribution[item])
 
-    axes[2].tick_params(labelrotation=45)
+    axes[2].tick_params(axis='x', labelrotation=45)
 
     plt.show()
 

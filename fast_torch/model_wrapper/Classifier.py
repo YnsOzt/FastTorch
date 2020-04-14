@@ -326,6 +326,8 @@ if __name__ == '__main__':
         "early_stopping_patience": 2
     }
 
+    print(training_opts['criterion'])
+
     clf = Classifier(model, training_opts, train_loader, test_loader, val_loader, device="cuda")
 
     clf.train()

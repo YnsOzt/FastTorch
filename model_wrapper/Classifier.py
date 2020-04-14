@@ -196,7 +196,7 @@ class Classifier:
 
     def plot_training_stats(self, figsize=(15, 7)):
         """
-
+        plot the training loss, validation loss and the validation accuracy
         :param figsize: figsize (width, height) [OPT]
         :return:
         """

@@ -1,9 +1,9 @@
 from distutils.core import setup
 
 setup(
-    name='faster_torch',  # How you named your package folder (MyLib)
-    packages=['faster_torch'],  # Chose the same as "name"
-    version='0.1',  # Start with a small number and increase it with every change you make
+    name='fast_torch',  # How you named your package folder (MyLib)
+    packages=['fast_torch'],  # Chose the same as "name"
+    version='0.2',  # Start with a small number and increase it with every change you make
     license='MIT',  # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     description='Library that implements boiler plate code in PyTorch for training, testing and plotting your model',
     # Give a short description about your library

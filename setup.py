@@ -1,12 +1,13 @@
 from distutils.core import setup
+import setuptools
 
 with open("./README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name='fast_torch',
-    packages=['fast_torch'],
-    version='0.99',
+    packages=setuptools.find_packages(),
+    version='1.0',
     license='MIT',
     description='Library that implements boiler plate code in PyTorch for training, testing and plotting your model',
     long_description=long_description,
@@ -22,5 +23,5 @@ setup(
         'tqdm',
         'numpy',
         'matplotlib'
-    ]
+    ],
 )

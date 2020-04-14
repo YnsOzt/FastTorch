@@ -6,7 +6,7 @@ with open("./README.md", "r") as fh:
 setup(
     name='fast_torch',
     packages=['fast_torch'],
-    version='0.3.1',
+    version='0.99',
     license='MIT',
     description='Library that implements boiler plate code in PyTorch for training, testing and plotting your model',
     long_description=long_description,
@@ -17,9 +17,10 @@ setup(
     keywords=['PyTorch', 'boiler_plate', 'Train', 'Test', 'Plot'],
     install_requires=[
         'sklearn',
-        'pytorch',
+        'torch',
+        'torchvision',
+        'tqdm',
         'numpy',
-        'matplotlib',
-        'itertools'
+        'matplotlib'
     ]
 )

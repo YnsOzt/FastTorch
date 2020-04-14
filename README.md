@@ -9,7 +9,9 @@ pip install fast_torch
 ```
 
 ## Usage
-A complete example is available on the [Notebook](./examples/FAST_TORCH_MNIST_EXAMPLE.ipynb)
+Take a look at the complete [Documentation](./documentation/README.md) of this framework.
+
+A complete example is available on the [Notebook](./examples/FAST_TORCH_MNIST_EXAMPLE.ipynb).
 ### Plot stats about your datasets
 ```python
 # Import the plotting module of the library
@@ -55,3 +57,8 @@ clf.plot_confusion_matrix()
 ```
 
 ## TODOS
+* Clean the code
+* Make the confusion matrix figsize flexible
+* Add Learning rate decay to the 'Classifier'
+* Add other model wrappers
+* Make the plot functions more flexible (working with other type of dataset, not only dataloader)

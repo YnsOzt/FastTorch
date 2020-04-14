@@ -23,7 +23,7 @@ class Classifier:
         :param train_dataloader: The dataloader of the training set
         :param test_dataloader: The dataloader of the test set
         :param val_dataloader: The dataloader of validation set if not specified, use the test set as the val set [OPT]
-        :param device: device to run your model on [ cpu | cuda ] [OPT]
+        :param device: device to run your model on [ cpu | cuda ] [OPT, DEFAULT=cpu]
         :param model_path: path where the best_model will be saved on [OPT]
         """
         self.model = model

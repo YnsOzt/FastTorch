@@ -1,12 +1,16 @@
 from distutils.core import setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name='fast_torch',  # How you named your package folder (MyLib)
     packages=['fast_torch'],  # Chose the same as "name"
     version='0.2',  # Start with a small number and increase it with every change you make
     license='MIT',  # Chose a license from here: https://help.github.com/articles/licensing-a-repository
     description='Library that implements boiler plate code in PyTorch for training, testing and plotting your model',
-    # Give a short description about your library
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author='Sakir Ozturk',  # Type in your name
     author_email='ozturk213@hotmail.fr',  # Type in your E-Mail
     url='https://github.com/YnsOzt/FastTorch',  # Provide either the link to your github or to your website

@@ -1,6 +1,10 @@
 # FastTorch
 
-Library that implements boiler plate code in PyTorch for training, testing and plotting your model
+Library that implements the training and test loops for your Deep Learning model. After your traning, you can also plot the training results, plot some predictions that your model has made on your test set and also a confusion matrix on the predictions made on your test set.
+
+This Library also allow you to plot some usefull informations about your dataset.
+
+/!\ Note: Currently only supports classification tasks, it'll support other types of task in the future...
 
 ## Installation
 run the following command then you are ready to go ! 

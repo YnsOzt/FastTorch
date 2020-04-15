@@ -13,9 +13,9 @@ pip install fast_torch
 ```
 
 ## Usage
-Take a look at the complete [Documentation](./documentation/README.md) of this framework.
+Take a look at the complete [Documentation](https://github.com/YnsOzt/FastTorch/blob/master/documentation/README.md) of this framework.
 
-A complete example is available on the [Notebook](./examples/FAST_TORCH_MNIST_EXAMPLE.ipynb).
+A complete example is available on the [Notebook](https://github.com/YnsOzt/FastTorch/blob/master/examples/FAST_TORCH_MNIST_EXAMPLE.ipynb).
 ### Plot stats about your datasets
 ```python
 # Import the plotting module of the library

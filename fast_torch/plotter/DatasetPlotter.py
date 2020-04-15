@@ -93,23 +93,3 @@ def plot_images(data_loader, figsize=(15, 15), std_mean=None):
     plt.ioff()
     plt.show()
 
-
-if __name__ == '__main__':
-    import torch
-    import torch.optim as optim
-    import torchvision
-    import torchvision.datasets as datasets
-    from torch.utils.data import DataLoader
-
-    transforms = torchvision.transforms.Compose(
-        [torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.1307,), (0.3081,))])
-    mnist_trainset = datasets.MNIST(root='./data', train=True, download=True, transform=transforms)
-    mnist_trainset, mnist_valset = torch.utils.data.random_split(mnist_trainset, (55000, 5000))
-    mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=transforms)
-
-    train_loader = DataLoader(mnist_trainset, batch_size=32, shuffle=True, drop_last=True)
-    val_loader = DataLoader(mnist_valset, batch_size=32, shuffle=True, drop_last=True)
-    test_loader = DataLoader(mnist_testset, batch_size=32, shuffle=True, drop_last=True)
-
-    plot_classes_distributions(train_loader, test_loader, val_loader)
-    plot_images(train_loader)

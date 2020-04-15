@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import torch
-import tqdm
+import tqdm.autonotebook as tqdm
 
 
 def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader=None, figsize=(20, 7)):
@@ -17,7 +17,7 @@ def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader
 
     def compute_distribution(dataset):
         distribution = {}
-        for (x, y) in tqdm.tqdm(dataset, position=0, leave=True):
+        for (x, y) in tqdm.tqdm(dataset):
             for lb in y:
                 current_y = dataset.dataset.dataset.classes[lb] if isinstance(dataset.dataset,
                                                                               torch.utils.data.dataset.Subset) else \

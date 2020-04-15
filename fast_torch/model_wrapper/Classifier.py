@@ -1,4 +1,4 @@
-import tqdm
+import tqdm.autonotebook as tqdm
 import torch
 import matplotlib.pyplot as plt
 import matplotlib
@@ -100,7 +100,8 @@ class Classifier:
             # Early stopping
             if validation_accuracy > best_accuracy:
                 print("Accuracy increased from {} to {} ... Saving model as {}".format(best_accuracy,
-                                                                                       validation_accuracy, self.model_path))
+                                                                                       validation_accuracy,
+                                                                                       self.model_path))
                 best_accuracy = validation_accuracy
                 current_patience = self.early_stopping_patience
                 self._save_model()
@@ -132,7 +133,7 @@ class Classifier:
         self.model.train()
         current_loss = 0
         num_iter = 0
-        for X, y in tqdm.tqdm(self.train_dataloader, position=0, leave=True):
+        for X, y in tqdm.tqdm(self.train_dataloader):
             self.optimizer.zero_grad()
             X = X.to(self.device)
             y = y.to(self.device)
@@ -144,7 +145,6 @@ class Classifier:
             self.optimizer.step()
             current_loss += loss.item()
             num_iter += 1
-
 
         return round(current_loss / len(self.train_dataloader), 4)
 
@@ -161,7 +161,7 @@ class Classifier:
         total = 0
         self.model.eval()
         with torch.no_grad():
-            for X, y in tqdm.tqdm(dataset, position=0, leave=True):
+            for X, y in tqdm.tqdm(dataset):
                 X = X.to(self.device)
                 y = y.to(self.device)
                 outputs = self.model(X)

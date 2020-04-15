@@ -62,7 +62,6 @@ clf.plot_confusion_matrix()
 
 ## TODOS
 * Clean the code
-* Fix the TQDM new line bug on notebooks
 * Make the confusion matrix figsize flexible
 * Add Learning rate decay to the 'Classifier'
 * Add other model wrappers

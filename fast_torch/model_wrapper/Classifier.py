@@ -78,13 +78,14 @@ class Classifier:
         self.model.to(self.device)
         print(self.model)
         current_patience = self.early_stopping_patience
-        best_accuracy = -1
+        best_accuracy = 0
 
         for epoch in range(self.epochs):
             print("-" * 80)
 
             # Forward and backward pass
             print("Epoch : {}/{}".format(epoch + 1, self.epochs))
+            print("Starting training")
             current_loss = self._train_epoch()
 
             # Validation step
@@ -98,6 +99,8 @@ class Classifier:
 
             # Early stopping
             if validation_accuracy > best_accuracy:
+                print("Accuracy increased from {} to {} ... Saving model as {}".format(best_accuracy,
+                                                                                       validation_accuracy, self.model_path))
                 best_accuracy = validation_accuracy
                 current_patience = self.early_stopping_patience
                 self._save_model()
@@ -128,7 +131,8 @@ class Classifier:
         """
         self.model.train()
         current_loss = 0
-        for X, y in tqdm.tqdm(self.train_dataloader):
+        num_iter = 0
+        for X, y in tqdm.tqdm(self.train_dataloader, position=0, leave=True):
             self.optimizer.zero_grad()
             X = X.to(self.device)
             y = y.to(self.device)
@@ -139,6 +143,8 @@ class Classifier:
             loss.backward()
             self.optimizer.step()
             current_loss += loss.item()
+            num_iter += 1
+
 
         return round(current_loss / len(self.train_dataloader), 4)
 
@@ -155,7 +161,7 @@ class Classifier:
         total = 0
         self.model.eval()
         with torch.no_grad():
-            for X, y in tqdm.tqdm(dataset):
+            for X, y in tqdm.tqdm(dataset, position=0, leave=True):
                 X = X.to(self.device)
                 y = y.to(self.device)
                 outputs = self.model(X)
@@ -191,7 +197,6 @@ class Classifier:
         """
         if ".pth" not in self.model_path:
             self.model_path += ".pth"
-        print("Saving model")
         torch.save(self.model.state_dict(), self.model_path)
 
     def plot_training_stats(self, figsize=(15, 7)):
@@ -280,3 +285,55 @@ class Classifier:
             plt.show()
         else:
             raise Exception("You should train your model first!")
+
+
+if __name__ == '__main__':
+    import torch.nn as nn
+    import torch.nn.functional as F
+    import torch
+    import torch.optim as optim
+    import torchvision
+    import torchvision.datasets as datasets
+    from torch.utils.data import DataLoader
+
+
+    class Model(nn.Module):
+        def __init__(self):
+            super(Model, self).__init__()
+            self.conv1 = nn.Conv2d(1, 32, 3)
+            self.conv2 = nn.Conv2d(32, 64, 5)
+            self.lin = nn.Linear(64 * 22 * 22, len(mnist_trainset.dataset.classes))
+
+        def forward(self, x):
+            x = F.relu(self.conv1(x))
+            x = F.relu(self.conv2(x))
+            x = x.view(-1, 64 * 22 * 22)
+            x = self.lin(x)
+            return F.log_softmax(x, dim=-1)
+
+
+    transforms = torchvision.transforms.Compose(
+        [torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.1307,), (0.3081,))])
+    mnist_trainset = datasets.MNIST(root='./data', train=True, download=True, transform=transforms)
+    mnist_trainset, mnist_valset = torch.utils.data.random_split(mnist_trainset, (55000, 5000))
+    mnist_testset = datasets.MNIST(root='./data', train=False, download=True, transform=transforms)
+
+    train_loader = DataLoader(mnist_trainset, batch_size=32, shuffle=True, drop_last=True)
+    val_loader = DataLoader(mnist_valset, batch_size=32, shuffle=True, drop_last=True)
+    test_loader = DataLoader(mnist_testset, batch_size=32, shuffle=True, drop_last=True)
+
+    model = Model()
+    training_opts = {
+        "epochs": 5,
+        "criterion": nn.CrossEntropyLoss(),
+        "optimizer": optim.SGD(model.parameters(), lr=0.01),
+        "early_stopping_patience": 2
+    }
+
+    clf = Classifier(model, training_opts, train_loader, test_loader, val_loader, device="cuda")
+
+    clf.train()
+    clf.test()
+    clf.plot_training_stats()
+    clf.plot_random_predictions()
+    clf.plot_confusion_matrix()

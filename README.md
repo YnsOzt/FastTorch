@@ -61,6 +61,7 @@ clf.plot_confusion_matrix()
 ```
 
 ## TODOS
+* Add a dataset creator for images (with the splits etc..)
 * Clean the code
 * Make the confusion matrix figsize flexible
 * Add Learning rate decay to the 'Classifier'

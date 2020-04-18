@@ -114,6 +114,7 @@ class Classifier:
             if current_patience == 0:
                 print("Training stopped due to early stopping patience !")
                 break
+        print("Training finished !")
 
     def test(self):
         """

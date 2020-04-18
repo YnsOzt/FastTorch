@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import torch
 import tqdm.autonotebook as tqdm
+import numpy as np
 
 
 def plot_classes_distributions(train_dataloader, test_dataloader, val_dataloader=None, figsize=(20, 7)):
